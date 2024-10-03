@@ -82,11 +82,14 @@ class PhotoApp:
         draw = ImageDraw.Draw(img)
         font = ImageFont.load_default()
 
-        # Chat bubble dimensions based on text
-        text_size = draw.textsize(text, font=font)
+        # Get the bounding box of the text (replaces textsize)
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
+
         bubble_padding = 10
-        bubble_width = text_size[0] + 2 * bubble_padding
-        bubble_height = text_size[1] + 2 * bubble_padding
+        bubble_width = text_width + 2 * bubble_padding
+        bubble_height = text_height + 2 * bubble_padding
         bubble_x = coords[0] + 20  # Position the bubble to the right of the pointer
         bubble_y = coords[1] - bubble_height - 10  # Above the pointer
 
@@ -97,6 +100,7 @@ class PhotoApp:
         draw.text((bubble_x + bubble_padding, bubble_y + bubble_padding), text, fill="black", font=font)
 
         return img
+
 
     def create_pdf(self):
         if not self.image:
