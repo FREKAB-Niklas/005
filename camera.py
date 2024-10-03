@@ -11,11 +11,14 @@ class PhotoApp:
         self.root.title("Production Procedure Documentation")
 
         # Initialize variables
+        self.images = []  # Store all captured and annotated images
+        self.image_paths = []  # Store paths for each image
+        self.descriptions = []  # Store descriptions for each image
+        self.pointer_coords = []  # Store pointer coordinates for each image
+        self.current_image_index = -1
         self.image = None
-        self.image_path = "captured_image.jpg"
-        self.annotated_image_path = "annotated_image.jpg"
-        self.description = ""
-        self.pointer_coords = (0, 0)
+        self.image_path = ""
+        self.annotated_image_path = ""
 
         # Camera capture
         self.video_capture = cv2.VideoCapture(0)
@@ -33,6 +36,9 @@ class PhotoApp:
         self.pointer_button = tk.Button(root, text="Add Pointer", command=self.add_pointer)
         self.pointer_button.pack()
 
+        self.next_button = tk.Button(root, text="Next", command=self.next_step)
+        self.next_button.pack()
+
         self.finalize_button = tk.Button(root, text="Finalize and Create PDF", command=self.create_pdf)
         self.finalize_button.pack()
 
@@ -49,40 +55,45 @@ class PhotoApp:
         self.root.after(10, self.update_video_feed)
 
     def capture_image(self):
+        self.current_image_index += 1
+        self.image_path = f"captured_image_{self.current_image_index}.jpg"
+        self.annotated_image_path = f"annotated_image_{self.current_image_index}.jpg"
         cv2.imwrite(self.image_path, cv2.cvtColor(self.frame, cv2.COLOR_RGB2BGR))
         self.image = Image.open(self.image_path)
         print("Image captured and saved as", self.image_path)
+        self.images.append(self.image)
 
     def add_description(self):
-        self.description = simpledialog.askstring("Input", "Enter a description for the image:")
-        print("Description added:", self.description)
+        description = simpledialog.askstring("Input", "Enter a description for the image:")
+        print("Description added:", description)
+        self.descriptions.append(description)
 
     def add_pointer(self):
         def click_event(event):
             x, y = event.x, event.y
-            self.pointer_coords = (x, y)
+            self.pointer_coords.append((x, y))
+
             self.image = Image.open(self.image_path)
             draw = ImageDraw.Draw(self.image)
-
-            # Draw the red circle for the pointer
             draw.ellipse((x-10, y-10, x+10, y+10), outline="red", width=3)
-
-            # Save temporary image with pointer
             self.image.save(self.annotated_image_path)
 
-            # Update canvas with new annotated image
             self.frame_tk = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.frame_tk)
             print(f"Pointer added at ({x}, {y})")
 
-        # Bind click event to canvas
         self.canvas.bind("<Button-1>", click_event)
+
+    def next_step(self):
+        # Save image and description for the current step
+        self.capture_image()
+        self.add_description()
 
     def draw_chat_bubble(self, img, text, coords):
         draw = ImageDraw.Draw(img)
         font = ImageFont.load_default()
 
-        # Get the bounding box of the text (replaces textsize)
+        # Bounding box calculation for text size
         text_bbox = draw.textbbox((0, 0), text, font=font)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
@@ -93,45 +104,37 @@ class PhotoApp:
         bubble_x = coords[0] + 20  # Position the bubble to the right of the pointer
         bubble_y = coords[1] - bubble_height - 10  # Above the pointer
 
-        # Draw bubble rectangle
+        # Draw the chat bubble and text
         draw.rectangle([bubble_x, bubble_y, bubble_x + bubble_width, bubble_y + bubble_height], fill="white", outline="black")
-
-        # Draw the text in the bubble
         draw.text((bubble_x + bubble_padding, bubble_y + bubble_padding), text, fill="black", font=font)
 
         return img
 
-
     def create_pdf(self):
-        if not self.image:
-            print("No image captured yet.")
+        if not self.images:
+            print("No images captured.")
             return
-
-        # Annotate the image with chat bubble and pointer
-        annotated_image = Image.open(self.annotated_image_path)
-        annotated_image_with_bubble = self.draw_chat_bubble(annotated_image, self.description, self.pointer_coords)
-        annotated_image_with_bubble.save(self.annotated_image_path)  # Save the final image
 
         pdf_filename = "procedure_documentation.pdf"
         c = canvas.Canvas(pdf_filename, pagesize=A4)
 
-        # Set margins and positioning for A4 format
-        c.setFont("Helvetica", 12)
+        for i, image in enumerate(self.images):
+            description = self.descriptions[i]
+            pointer_coord = self.pointer_coords[i]
 
-        # Add title or description on the first page
-        c.drawString(50, 800, f"Procedure Documentation: {self.description}")
+            # Draw chat bubble on the image
+            annotated_image = self.draw_chat_bubble(image, description, pointer_coord)
+            annotated_image.save(self.annotated_image_path)
 
-        # Add the final annotated image to the PDF
-        c.drawImage(self.annotated_image_path, 50, 300, width=500, height=400)  # Fits image in A4 format
+            # Add description and image to the PDF
+            c.setFont("Helvetica", 12)
+            c.drawString(50, 800, f"Step {i+1}: {description}")
+            c.drawImage(self.annotated_image_path, 50, 300, width=500, height=400)
+            c.rect(45, 295, 510, 410, stroke=1, fill=0)
 
-        # Draw a border around the image for a professional look
-        c.rect(45, 295, 510, 410, stroke=1, fill=0)
+            # New page after each step
+            c.showPage()
 
-        # Add some professional footer text (optional)
-        c.setFont("Helvetica", 10)
-        c.drawString(50, 50, "Document created using Raspberry Pi-based system")
-
-        # Save PDF
         c.save()
         print("PDF created as", pdf_filename)
 
