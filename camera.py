@@ -11,14 +11,14 @@ class PhotoApp:
         self.root.title("Production Procedure Documentation")
 
         # Initialize variables
-        self.images = []  # Store all captured and annotated images
-        self.image_paths = []  # Store paths for each image
+        self.images = []  # Store all captured images
         self.descriptions = []  # Store descriptions for each image
         self.pointer_coords = []  # Store pointer coordinates for each image
-        self.current_image_index = -1
+        self.current_image_index = -1  # Track current image index
         self.image = None
         self.image_path = ""
         self.annotated_image_path = ""
+        self.part_number = ""
 
         # Camera capture
         self.video_capture = cv2.VideoCapture(0)
@@ -65,8 +65,9 @@ class PhotoApp:
 
     def add_description(self):
         description = simpledialog.askstring("Input", "Enter a description for the image:")
+        part_number = simpledialog.askstring("Input", "Enter the part number:")
         print("Description added:", description)
-        self.descriptions.append(description)
+        self.descriptions.append((description, part_number))
 
     def add_pointer(self):
         def click_event(event):
@@ -85,7 +86,7 @@ class PhotoApp:
         self.canvas.bind("<Button-1>", click_event)
 
     def next_step(self):
-        # Save image and description for the current step
+        # After adding pointer and description, move to next step
         self.capture_image()
         self.add_description()
 
@@ -118,17 +119,18 @@ class PhotoApp:
         pdf_filename = "procedure_documentation.pdf"
         c = canvas.Canvas(pdf_filename, pagesize=A4)
 
-        for i, image in enumerate(self.images):
-            description = self.descriptions[i]
+        for i, (image, description_data) in enumerate(zip(self.images, self.descriptions)):
+            description, part_number = description_data
             pointer_coord = self.pointer_coords[i]
 
             # Draw chat bubble on the image
             annotated_image = self.draw_chat_bubble(image, description, pointer_coord)
             annotated_image.save(self.annotated_image_path)
 
-            # Add description and image to the PDF
+            # PDF Layout similar to your provided structure
             c.setFont("Helvetica", 12)
             c.drawString(50, 800, f"Step {i+1}: {description}")
+            c.drawString(50, 780, f"Part Number: {part_number}")
             c.drawImage(self.annotated_image_path, 50, 300, width=500, height=400)
             c.rect(45, 295, 510, 410, stroke=1, fill=0)
 
