@@ -38,18 +38,24 @@ def process_wiring():
     }
 
     # Create connections based on the provided data
+    # Create connections based on the provided data
     connections = []
     for conn in data['connections']:
         source_conn = conn['source'].split(".")[0]
         dest_conn = conn['destination'].split(".")[0]
         source_pin = int(conn['source'].split(".")[1])  # Convert pin numbers to integers
         dest_pin = int(conn['destination'].split(".")[1])  # Convert pin numbers to integers
-        
-        connections.append([
-            {source_conn: [source_pin]},  # Use list ([]) instead of string
-            {'B1': [source_pin]},  # Use list for cable pin connection
-            {dest_conn: [dest_pin]}  # Use list for destination pin
-        ])
+
+        # Create each connection with flow-style lists
+        connection = [
+            {source_conn: [source_pin]},  # Ensure this is a flow list
+            {'B1': [source_pin]},  # Use list for the cable pin connection
+            {dest_conn: [dest_pin]}  # Ensure this is also a flow list
+        ]
+
+        # Append the connection to the connections list
+        connections.append(connection)
+
 
     wireviz_data = {
         'connectors': connectors,
