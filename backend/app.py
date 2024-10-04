@@ -17,7 +17,7 @@ class MyDumper(yaml.Dumper):
 
     def represent_list(self, data):
         # Force block style (each item on a new line)
-        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow=False)
+        return self.represent_sequence('tag:yaml.org,2002:seq', data)
 
 yaml.add_representer(list, MyDumper.represent_list)
 
