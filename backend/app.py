@@ -10,14 +10,13 @@ CORS(app)  # Enable CORS for all routes
 # Set the output directory where Wireviz outputs will be saved
 output_dir = 'output'
 
-# Custom YAML dumper to force block style for lists
+# Custom YAML representer to force flow style for specific lists
 class MyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow=flow, indentless=False)
+        return super(MyDumper, self).increase_indent(flow=flow, indentless=indentless)
 
     def represent_list(self, data):
-        # Force block style (each item on a new line)
-        return self.represent_sequence('tag:yaml.org,2002:seq', data)
+        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow=True)
 
 yaml.add_representer(list, MyDumper.represent_list)
 
@@ -38,7 +37,6 @@ def process_wiring():
     }
 
     # Create connections based on the provided data
-    # Create connections based on the provided data
     connections = []
     for conn in data['connections']:
         source_conn = conn['source'].split(".")[0]
@@ -46,7 +44,7 @@ def process_wiring():
         source_pin = int(conn['source'].split(".")[1])  # Convert pin numbers to integers
         dest_pin = int(conn['destination'].split(".")[1])  # Convert pin numbers to integers
 
-        # Create each connection with flow-style lists
+        # Construct connection using flow style for lists
         connection = [
             {source_conn: [source_pin]},  # Ensure this is a flow list
             {'B1': [source_pin]},  # Use list for the cable pin connection
@@ -56,7 +54,6 @@ def process_wiring():
         # Append the connection to the connections list
         connections.append(connection)
 
-
     wireviz_data = {
         'connectors': connectors,
         'cables': {
@@ -65,8 +62,7 @@ def process_wiring():
                 'length': 0.2,  # Example length, modify as needed
                 'show_equiv': True,  # Example of auto-calculated AWG equivalent from metric gauge
             }
-        },
-        'connections': connections
+        }
     }
 
     # Ensure the output directory exists
@@ -75,8 +71,15 @@ def process_wiring():
 
     # Save YAML file in the output directory using the custom dumper
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
+    
+    # First, dump connectors and cables in default block style
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(wireviz_data, file, Dumper=MyDumper, sort_keys=False)
+        yaml.dump(wireviz_data, file, sort_keys=False)
+
+    # Now append connections separately, ensuring flow style is applied
+    with open(yaml_file_path, 'a') as file:
+        file.write('connections:\n')
+        yaml.dump(connections, file, Dumper=MyDumper, default_flow_style=True)
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])
