@@ -15,8 +15,8 @@ def process_wiring():
     data = request.json  # Get data from frontend
 
     # Extract pin counts from the request
-    pincountX1 = data.get('pincountX1', None)
-    pincountX2 = data.get('pincountX2', None)
+    pincountX1 = int(data.get('pincountX1', 1))  # Default to 1 if not provided
+    pincountX2 = int(data.get('pincountX2', 1))  # Default to 1 if not provided
 
     # Debugging prints (you can remove these later)
     print(f"Pin Count X1: {pincountX1}")
@@ -27,11 +27,13 @@ def process_wiring():
         'connectors': {
             'X1': {
                 'type': 'Test1',
-                'subtype': 'female'
+                'subtype': 'female',
+                'pincount': pincountX1  # Include pin count for X1
             },
             'X2': {
                 'type': 'Test2',
-                'subtype': 'female'
+                'subtype': 'female',
+                'pincount': pincountX2  # Include pin count for X2
             }
         },
         'cables': {
@@ -42,13 +44,6 @@ def process_wiring():
             }
         }
     }
-
-    # Add pincount for X1 and X2 only if they are provided
-    if pincountX1:
-        wireviz_data['connectors']['X1']['pincount'] = pincountX1
-
-    if pincountX2:
-        wireviz_data['connectors']['X2']['pincount'] = pincountX2
 
     # Debugging print to check structure of wireviz_data (you can remove this later)
     print(f"Wireviz Data: {wireviz_data}")
