@@ -10,14 +10,19 @@ CORS(app)  # Enable CORS for all routes
 # Set the output directory where Wireviz outputs will be saved
 output_dir = 'output'
 
-# Custom YAML dumper to force block style for lists
+# Custom YAML dumper to force flow style for lists in connections
 class MyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(MyDumper, self).increase_indent(flow=flow, indentless=False)
 
+    def represent_dict(self, data):
+        if isinstance(data, dict):
+            return self.represent_mapping('tag:yaml.org,2002:map', data)
+        return super().represent_dict(data)
+
     def represent_list(self, data):
-        # Force block style (each item on a new line)
-        return self.represent_sequence('tag:yaml.org,2002:seq', data)
+        # Force flow style (i.e., use [1, 2, 3]) for lists
+        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow=True)
 
 yaml.add_representer(list, MyDumper.represent_list)
 
