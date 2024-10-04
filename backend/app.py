@@ -5,8 +5,8 @@ import os
 
 app = Flask(__name__)
 
-# Set the output directory (using local directory for now)
-output_dir = '/home/frekab005tester/005/backend/output'
+# Set the output directory where Wireviz outputs will be saved
+output_dir = 'output'
 
 @app.route('/process', methods=['POST'])
 def process_wiring():
@@ -22,7 +22,7 @@ def process_wiring():
         }]
     }
 
-    # Ensure output directory exists
+    # Ensure the output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -32,24 +32,36 @@ def process_wiring():
         yaml.dump(wireviz_data, file)
     
     # Run Wireviz to generate the diagram and output in the local directory
-    subprocess.run(["wireviz", yaml_file_path])
+    try:
+        result = subprocess.run(["wireviz", yaml_file_path], capture_output=True, text=True)
+        # Log the Wireviz output for debugging
+        print("Wireviz stdout:", result.stdout)
+        print("Wireviz stderr:", result.stderr)
+        
+        # Check if Wireviz returned an error
+        if result.returncode != 0:
+            return jsonify({"status": "error", "message": f"Wireviz failed: {result.stderr}"}), 500
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-    # Assume the generated PNG is now in the output directory
+    # Assume the generated PNG is in the output directory
     png_file_path = os.path.join(output_dir, 'wireviz_data.png')
 
-    # Read the YAML file content
+    # Read the YAML file content to display it
     with open(yaml_file_path, 'r') as yaml_file:
         yaml_content = yaml_file.read()
 
-    # Return both YAML content and PNG file path
+    # Return both the PNG file path and the YAML content
     return jsonify({
-        "png_path": f"/{png_file_path}",  # The file path to serve the image
-        "yaml_content": yaml_content      # The content of the YAML file
+        "png_path": f"/output/{os.path.basename(png_file_path)}",  # The relative path to the PNG
+        "yaml_content": yaml_content                                # The YAML content to display
     })
 
 # Serve static files (e.g., images) from the output directory
 @app.route('/output/<path:filename>')
 def serve_output(filename):
+    # Serve files from the output directory
     return send_file(os.path.join(output_dir, filename))
 
 if __name__ == "__main__":

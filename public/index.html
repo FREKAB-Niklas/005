@@ -45,8 +45,6 @@ function submitData() {
         destination: destination
     };
 
-    console.log("Sending POST request with data:", requestData); // Debugging log
-
     // Send POST request to Flask server
     fetch('http://frekab005tester.local:5000/process', {
         method: 'POST',
@@ -55,12 +53,9 @@ function submitData() {
         },
         body: JSON.stringify(requestData)
     })
-    .then(response => {
-        console.log("Response received:", response); // Debugging log
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log("Data received:", data); // Debugging log
+        console.log("Data received:", data); // For debugging
 
         // Set the PNG image source and display it
         const imgElement = document.getElementById('outputImage');
@@ -74,6 +69,7 @@ function submitData() {
         console.error('Error during POST request:', error);
     });
 }
+
 
     </script>
 </body>
