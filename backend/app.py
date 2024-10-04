@@ -61,15 +61,16 @@ def process_wiring():
 
     # Save YAML file in the output directory using default dump for connectors and cables
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
-    
+
     # First, dump connectors and cables in block style
     with open(yaml_file_path, 'w') as file:
         yaml.dump(wireviz_data, file, sort_keys=False)
 
-    # Now append connections separately, iterating over the connections to ensure no extra nesting
+    # Now append connections in block style, ensuring each connection is dumped correctly
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
         for connection in connections:
+            file.write('  - ')  # Start the connection in block format
             yaml.dump(connection, file, default_flow_style=True, sort_keys=False)
 
     # Run Wireviz to generate the diagram and output in the local directory
