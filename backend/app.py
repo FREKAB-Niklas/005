@@ -15,8 +15,8 @@ def process_wiring():
     data = request.json  # Get data from frontend
 
     # Extract pin labels and pin colors if provided
-    pinlabels = data.get('pinlabels', "").split(',') if 'pinlabels' in data and data['pinlabels'] else None
-    pincolors = data.get('pincolors', "").split(',') if 'pincolors' in data and data['pincolors'] else None
+    pinlabels = data.get('pinlabels', "").split(',') if data.get('pinlabels') else None
+    pincolors = data.get('pincolors', "").split(',') if data.get('pincolors') else None
 
     # Convert data to the simplified Wireviz format (YAML)
     connectors = {
@@ -31,13 +31,25 @@ def process_wiring():
     }
 
     # Add pinlabels and pincolors only if they are provided
-    if pinlabels:
+    if pinlabels and pinlabels != [""]:  # Ensure pinlabels are not empty
         connectors['X1']['pinlabels'] = pinlabels
         connectors['X2']['pinlabels'] = pinlabels
 
-    if pincolors:
+    if pincolors and pincolors != [""]:  # Ensure pincolors are not empty
         connectors['X1']['pincolors'] = pincolors
         connectors['X2']['pincolors'] = pincolors
+
+    # Now include connectors (with pinlabels and pincolors) in wireviz_data
+    wireviz_data = {
+        'connectors': connectors,  # Include the connectors dictionary
+        'cables': {
+            'B1': {
+                'gauge': f"{data['gauge']} AWG",
+                'length': 0.2,
+                'show_equiv': True
+            }
+        }
+    }
 
     # Create connections based on the provided data
     connections = []
@@ -54,17 +66,6 @@ def process_wiring():
             {dest_conn: [dest_pin]}
         ]
         connections.append(connection)
-
-    wireviz_data = {
-        'connectors': connectors,
-        'cables': {
-            'B1': {
-                'gauge': f"{data['gauge']} AWG",
-                'length': 0.2,
-                'show_equiv': True
-            }
-        }
-    }
 
     # Ensure the output directory exists
     if not os.path.exists(output_dir):
