@@ -71,8 +71,8 @@ def process_wiring():
             for conn in connection:
                 # Extract key and value from the dictionary (e.g., {'X1': [1]})
                 for key, value in conn.items():
-                    # Manually write key-value pairs in YAML format
-                    file.write(f'    {key}: {value}\n')
+                    # Wrap the connection in a list, ensuring it matches Wireviz format
+                    file.write(f'    - {key}: {value}\n')
 
 
 
