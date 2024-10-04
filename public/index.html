@@ -57,51 +57,54 @@
         }
 
         function submitData() {
-            const gauge = document.getElementById('gauge').value;
-            const source = document.getElementById('source').value;
-            const destination = document.getElementById('destination').value;
+    const gauge = document.getElementById('gauge').value;
+    const source = document.getElementById('source').value;
+    const destination = document.getElementById('destination').value;
 
-            const connections = [
-                { source, destination }
-            ];
+    // Create the initial connection
+    const connections = [
+        { source, destination }
+    ];
 
-            // Add dynamic connections from the form
-            const connectionsDiv = document.getElementById('connectionsList');
-            for (let i = 0; i < connectionsDiv.children.length; i += 4) {
-                const sourceVal = connectionsDiv.children[i + 1].value;
-                const destinationVal = connectionsDiv.children[i + 3].value;
-                connections.push({ source: sourceVal, destination: destinationVal });
-            }
+    // Add dynamic connections from the form
+    const connectionsDiv = document.getElementById('connectionsList');
+    for (let i = 0; i < connectionsDiv.children.length; i += 4) {
+        const sourceVal = connectionsDiv.children[i + 1].value;
+        const destinationVal = connectionsDiv.children[i + 3].value;
+        connections.push({ source: sourceVal, destination: destinationVal });
+    }
 
-            const requestData = {
-                gauge: gauge,
-                connections: connections
-            };
+    // Create the request object with gauge and connections
+    const requestData = {
+        gauge: gauge,
+        connections: connections
+    };
 
-            // Send POST request to Flask server
-            fetch('http://frekab005tester.local:5000/process', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Data received:", data); // For debugging
+    // Send POST request to Flask server
+    fetch('http://frekab005tester.local:5000/process', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Data received:", data); // For debugging
 
-                // Set the PNG image source and display it
-                const imgElement = document.getElementById('outputImage');
-                imgElement.src = data.png_path;
-                imgElement.style.display = 'block';
+        // Set the PNG image source and display it
+        const imgElement = document.getElementById('outputImage');
+        imgElement.src = data.png_path;
+        imgElement.style.display = 'block';
 
-                // Display the YAML content
-                document.getElementById('yamlContent').innerText = data.yaml_content;
-            })
-            .catch(error => {
-                console.error('Error during POST request:', error);
-            });
-        }
+        // Display the YAML content
+        document.getElementById('yamlContent').innerText = data.yaml_content;
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+    });
+}
+
     </script>
 </body>
 </html>
