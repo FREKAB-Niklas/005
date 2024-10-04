@@ -34,23 +34,21 @@ def process_wiring():
         source_pin = int(conn['source'].split(".")[1])  # Convert pin numbers to integers
         dest_pin = int(conn['destination'].split(".")[1])  # Convert pin numbers to integers
 
-        # Construct connection using flow style for lists
+        # Construct connection as flow-style list
         connection = [
-            {source_conn: [source_pin]},  # Ensure this is a flow list
-            {'B1': [source_pin]},  # Use list for the cable pin connection
-            {dest_conn: [dest_pin]}  # Ensure this is also a flow list
+            {source_conn: [source_pin]},
+            {'B1': [source_pin]},
+            {dest_conn: [dest_pin]}
         ]
-
-        # Append the connection to the connections list
         connections.append(connection)
 
     wireviz_data = {
         'connectors': connectors,
         'cables': {
             'B1': {
-                'gauge': f"{data['gauge']} AWG",  # Convert gauge from input
-                'length': 0.2,  # Example length, modify as needed
-                'show_equiv': True,  # Example of auto-calculated AWG equivalent from metric gauge
+                'gauge': f"{data['gauge']} AWG",
+                'length': 0.2,
+                'show_equiv': True
             }
         }
     }
@@ -59,19 +57,18 @@ def process_wiring():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Save YAML file in the output directory using default dump for connectors and cables
+    # Save YAML file in the output directory
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
 
     # First, dump connectors and cables in block style
     with open(yaml_file_path, 'w') as file:
         yaml.dump(wireviz_data, file, sort_keys=False)
 
-    # Now append connections in block style, ensuring each connection is dumped correctly
+    # Manually write the connections part with proper YAML formatting
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
         for connection in connections:
-            file.write('  - ')  # Start the connection in block format
-            yaml.dump(connection, file, default_flow_style=True, sort_keys=False)
+            file.write(f'  - {connection}\n')  # Manually formatting the connection in flow style
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])
@@ -85,8 +82,8 @@ def process_wiring():
 
     # Return both the PNG file path and the YAML content
     return jsonify({
-        "png_path": f"/output/{os.path.basename(png_file_path)}",  # The relative path to the PNG
-        "yaml_content": yaml_content                                # The YAML content to display
+        "png_path": f"/output/{os.path.basename(png_file_path)}",
+        "yaml_content": yaml_content
     })
 
 # Serve static files (e.g., images) from the output directory
