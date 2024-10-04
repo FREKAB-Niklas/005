@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import the CORS extension
 import yaml
 import subprocess
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 @app.route('/process', methods=['POST'])
 def process_wiring():
