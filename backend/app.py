@@ -17,11 +17,13 @@ def process_wiring():
     # Extract pin counts from the request
     pincountX1 = int(data.get('pincountX1', 1))  # Default to 1 if not provided
     pincountX2 = int(data.get('pincountX2', 1))  # Default to 1 if not provided
+    wirecolor = data.get('wirecolor', 'BK')  # Default to 'BK' (Black) if no color is selected
 
     # Debugging prints (you can remove these later)
     print(f"Pin Count X1: {pincountX1}")
     print(f"Pin Count X2: {pincountX2}")
-    
+    print(f"Wire Color: {wirecolor}")
+
     # Now include connectors (with pincount) in wireviz_data
     wireviz_data = {
         'connectors': {
@@ -40,7 +42,8 @@ def process_wiring():
             'B1': {
                 'gauge': f"{data['gauge']} AWG",
                 'length': 0.2,
-                'show_equiv': True
+                'show_equiv': True,
+                'colors': [wirecolor]  # Include the selected wire color in the colors list
             }
         }
     }
