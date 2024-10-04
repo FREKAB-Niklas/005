@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 # Set the output directory (using local directory for now)
-output_dir = 'output'
+output_dir = '/home/frekab005tester/005/backend/output'
 
 @app.route('/process', methods=['POST'])
 def process_wiring():
