@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS  # Import the CORS extension
+from flask_cors import CORS
 import yaml
 import subprocess
 import os
@@ -13,15 +13,46 @@ output_dir = 'output'
 @app.route('/process', methods=['POST'])
 def process_wiring():
     data = request.json  # Get data from frontend
-    
-    # Convert data to Wireviz format (YAML)
+
+    # Convert data to a more detailed Wireviz format (YAML)
+    connectors = {
+        'X1': {
+            'type': 'Molex KK 254',
+            'subtype': 'female',
+            'pinlabels': ['GND', 'VCC', 'RX', 'TX']
+        },
+        'X2': {
+            'type': 'Molex KK 254',
+            'subtype': 'female',
+            'pinlabels': ['GND', 'VCC', 'RX', 'TX']
+        }
+    }
+
+    # Create connections based on the provided data
+    connections = []
+    for conn in data['connections']:
+        source_conn = conn['source'].split(".")[0]
+        dest_conn = conn['destination'].split(".")[0]
+        source_pin = conn['source'].split(".")[1]
+        dest_pin = conn['destination'].split(".")[1]
+        
+        connections.append([
+            {source_conn: [source_pin]},
+            {'B1': [source_pin]},  # Using 'B1' as an example cable ID
+            {dest_conn: [dest_pin]}
+        ])
+
     wireviz_data = {
-        'cables': [{
-            'id': 'Cable1',
-            'wires': [
-                {'id': 'Wire1', 'gauge': data['gauge'], 'from': data['source'], 'to': data['destination']}
-            ]
-        }]
+        'connectors': connectors,
+        'cables': {
+            'B1': {
+                'gauge': f"{data['gauge']} AWG",  # Convert gauge from input
+                'length': 0.2,  # Example length, modify as needed
+                'shield': False,  # Example shield, modify as needed
+                'type': 'Signal'  # Example type, modify as needed
+            }
+        },
+        'connections': connections
     }
 
     # Ensure the output directory exists
@@ -31,8 +62,8 @@ def process_wiring():
     # Save YAML file in the output directory
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(wireviz_data, file)
-    
+        yaml.dump(wireviz_data, file, sort_keys=False)
+
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])
 
