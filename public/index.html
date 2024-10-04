@@ -57,7 +57,26 @@
     </form>
 
     <h2>Generated Diagram:</h2>
-    <img id="outputImage" src="" alt="Wire Harness Diagram" style="display:none; max-width: 500px;">
+    <img id="generated-diagram" src="" alt="Wire Harness Diagram" />
+
+    <script>
+      // Assuming you get the JSON response after submitting the form
+      fetch("/process", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ /* form data here */ }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("generated-diagram").src = data.png_path;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    </script>
+    
 
     <h2>YAML Content:</h2>
     <pre id="yamlContent" style="background-color: #f4f4f4; padding: 10px;"></pre>
