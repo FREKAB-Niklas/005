@@ -9,7 +9,7 @@
     <h1>Wire Harness Quote System</h1>
     <p>Welcome to the wire harness quoting tool!</p>
 
-    <!-- Simple form to capture wire details -->
+    <!-- Form to input wire data -->
     <form id="wireForm">
         <label for="gauge">Wire Gauge:</label>
         <input type="number" id="gauge" name="gauge" required><br>
@@ -23,7 +23,15 @@
         <button type="button" onclick="submitData()">Submit</button>
     </form>
 
-    <p id="response"></p>
+    <div>
+        <h2>Generated Diagram:</h2>
+        <img id="outputImage" src="" alt="Wire Harness Diagram" style="display:none; max-width: 500px;">
+    </div>
+
+    <div>
+        <h2>YAML Content:</h2>
+        <pre id="yamlContent" style="background-color: #f4f4f4; padding: 10px;"></pre>
+    </div>
 
     <script>
         function submitData() {
@@ -47,7 +55,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = data.message;
+                // Set the PNG image source and display it
+                const imgElement = document.getElementById('outputImage');
+                imgElement.src = data.png_path;
+                imgElement.style.display = 'block';
+
+                // Display the YAML content
+                document.getElementById('yamlContent').innerText = data.yaml_content;
             })
             .catch(error => console.error('Error:', error));
         }
