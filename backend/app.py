@@ -19,11 +19,6 @@ def process_wiring():
     pincountX2 = int(data.get('pincountX2', 1))  # Default to 1 if not provided
     wirecolor = data.get('wirecolor', 'BK')  # Default to 'BK' (Black) if no color is selected
 
-    # Debugging prints (you can remove these later)
-    print(f"Pin Count X1: {pincountX1}")
-    print(f"Pin Count X2: {pincountX2}")
-    print(f"Wire Color: {wirecolor}")
-
     # Now include connectors (with pincount) in wireviz_data
     wireviz_data = {
         'connectors': {
@@ -48,25 +43,6 @@ def process_wiring():
         }
     }
 
-    # Debugging print to check structure of wireviz_data (you can remove this later)
-    print(f"Wireviz Data: {wireviz_data}")
-
-    # Create connections based on the provided data
-    connections = []
-    for conn in data['connections']:
-        source_conn = conn['source'].split(".")[0]
-        dest_conn = conn['destination'].split(".")[0]
-        source_pin = int(conn['source'].split(".")[1])  # Convert pin numbers to integers
-        dest_pin = int(conn['destination'].split(".")[1])  # Convert pin numbers to integers
-
-        # Construct connection as flow-style list
-        connection = [
-            {source_conn: [source_pin]},
-            {'B1': [source_pin]},
-            {dest_conn: [dest_pin]}
-        ]
-        connections.append(connection)
-
     # Ensure the output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -76,17 +52,25 @@ def process_wiring():
 
     # First, dump connectors and cables in block style
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(wireviz_data, file, sort_keys=False)
+        yaml.dump(wireviz_data, file, sort_keys=False, default_flow_style=False)
+
+    # Now, append the cables part with flow-style for the colors
+    with open(yaml_file_path, 'a') as file:
+        # Manually write the cables section with flow-style for colors
+        file.write('cables:\n')
+        file.write(f'  B1:\n')
+        file.write(f'    gauge: {data["gauge"]} AWG\n')
+        file.write(f'    length: 0.2\n')
+        file.write(f'    show_equiv: true\n')
+        file.write(f'    colors: [{wirecolor}]\n')
 
     # Manually write the connections part with correct YAML formatting
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
-        for connection in connections:
+        for connection in data['connections']:
             file.write('  -\n')
             for conn in connection:
-                # Extract key and value from the dictionary (e.g., {'X1': [1]})
                 for key, value in conn.items():
-                    # Wrap each connection in an extra list to match Wireviz format
                     file.write(f'    - {key}: {value}\n')
 
     # Run Wireviz to generate the diagram and output in the local directory

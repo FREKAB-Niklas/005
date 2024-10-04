@@ -32,15 +32,19 @@ connectors:
   X1:
     type: Test1
     subtype: female
+    pincount: 1
   X2:
     type: Test2
     subtype: female
+    pincount: 1
 
 cables:
   B1:
     gauge: 0.25 mm2 # also accepts AWG as unit
     show_equiv: true # auto-calculate AWG equivalent from metric gauge
     length: 0.2
+    colors: [YE]
+
 
 connections:
   -
