@@ -66,10 +66,11 @@ def process_wiring():
     with open(yaml_file_path, 'w') as file:
         yaml.dump(wireviz_data, file, sort_keys=False)
 
-    # Now append connections separately, ensuring flow style is applied to connections
+    # Now append connections separately, iterating over the connections to ensure no extra nesting
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
-        yaml.dump(connections, file, default_flow_style=True, sort_keys=False)
+        for connection in connections:
+            yaml.dump(connection, file, default_flow_style=True, sort_keys=False)
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])
