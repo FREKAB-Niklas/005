@@ -32,14 +32,6 @@ def process_wiring():
                 'subtype': 'female',
                 'pincount': pincountX2  # Include pin count for X2
             }
-        },
-        'cables': {
-            'B1': {
-                'gauge': f"{data['gauge']} AWG",
-                'length': 0.2,
-                'show_equiv': True,
-                'colors': [wirecolor]  # Include the selected wire color in the colors list
-            }
         }
     }
 
@@ -50,19 +42,18 @@ def process_wiring():
     # Save YAML file in the output directory
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
 
-    # First, dump connectors and cables in block style
+    # First, dump connectors in block style
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(wireviz_data, file, sort_keys=False, default_flow_style=False)
+        yaml.dump(wireviz_data, file, sort_keys=False)
 
-    # Now, append the cables part with flow-style for the colors
+    # Now, manually write the cables section with flow-style for colors
     with open(yaml_file_path, 'a') as file:
-        # Manually write the cables section with flow-style for colors
         file.write('cables:\n')
         file.write(f'  B1:\n')
         file.write(f'    gauge: {data["gauge"]} AWG\n')
         file.write(f'    length: 0.2\n')
         file.write(f'    show_equiv: true\n')
-        file.write(f'    colors: [{wirecolor}]\n')
+        file.write(f'    colors: [{wirecolor}]\n')  # Flow-style color
 
     # Manually write the connections part with correct YAML formatting
     with open(yaml_file_path, 'a') as file:
