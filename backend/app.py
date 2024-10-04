@@ -43,7 +43,7 @@ def process_wiring():
                 'gauge': f"{data['gauge']} AWG",
                 'length': 0.2,
                 'show_equiv': True,
-                'colors': [BL]  # Include the selected wire color in the colors list
+                'colors': [YE],  # Include the selected wire color in the colors list
             }
         }
     }
