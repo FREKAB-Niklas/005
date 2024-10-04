@@ -13,11 +13,19 @@ output_dir = 'output'
 @app.route('/process', methods=['POST'])
 def process_wiring():
     data = request.json  # Get data from frontend
+    
+    # Extract pin labels and pin colors from the request
+    pinlabels_raw = data.get('pinlabels', "")
+    pincolors_raw = data.get('pincolors', "")
+    
+    # Split by commas only if not empty
+    pinlabels = pinlabels_raw.split(',') if pinlabels_raw else None
+    pincolors = pincolors_raw.split(',') if pincolors_raw else None
 
-    # Extract pin labels and pin colors if provided
-    pinlabels = data.get('pinlabels', "").split(',') if data.get('pinlabels') else None
-    pincolors = data.get('pincolors', "").split(',') if data.get('pincolors') else None
-
+    # Debugging prints (you can remove these later)
+    print(f"Pin Labels: {pinlabels}")
+    print(f"Pin Colors: {pincolors}")
+    
     # Now include connectors (with pinlabels and pincolors) in wireviz_data
     wireviz_data = {
         'connectors': {
@@ -47,6 +55,9 @@ def process_wiring():
     if pincolors and pincolors != [""]:  # Ensure pincolors are not empty
         wireviz_data['connectors']['X1']['pincolors'] = pincolors
         wireviz_data['connectors']['X2']['pincolors'] = pincolors
+
+    # Debugging print to check structure of wireviz_data (you can remove this later)
+    print(f"Wireviz Data: {wireviz_data}")
 
     # Create connections based on the provided data
     connections = []
