@@ -10,10 +10,16 @@ CORS(app)  # Enable CORS for all routes
 # Set the output directory where Wireviz outputs will be saved
 output_dir = 'output'
 
-# Custom YAML dumper to force square brackets for lists
+# Custom YAML dumper to force block style for lists
 class MyDumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(MyDumper, self).increase_indent(flow=flow, indentless=False)
+
+    def represent_list(self, data):
+        # Force block style (each item on a new line)
+        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow=False)
+
+yaml.add_representer(list, MyDumper.represent_list)
 
 @app.route('/process', methods=['POST'])
 def process_wiring():
@@ -64,7 +70,7 @@ def process_wiring():
     # Save YAML file in the output directory using the custom dumper
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(wireviz_data, file, Dumper=MyDumper, default_flow_style=False, sort_keys=False)
+        yaml.dump(wireviz_data, file, Dumper=MyDumper, sort_keys=False)
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])

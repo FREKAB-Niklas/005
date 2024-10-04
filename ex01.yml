@@ -28,7 +28,7 @@ connections:
 
 
 
-    connectors:
+connectors:
   X1:
     type: Test1
     subtype: female
