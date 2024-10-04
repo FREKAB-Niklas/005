@@ -24,3 +24,26 @@ connections:
   - # connection from connector pin to wire shielding
     - X1: 1
     - W1: s
+
+
+
+
+    connectors:
+  X1:
+    type: Test1
+    subtype: female
+  X2:
+    type: Test2
+    subtype: female
+
+cables:
+  B1:
+    gauge: 0.25 mm2 # also accepts AWG as unit
+    show_equiv: true # auto-calculate AWG equivalent from metric gauge
+    length: 0.2
+
+connections:
+  -
+    - X1: [1]
+    - B1: [1]
+    - X2: [1] 

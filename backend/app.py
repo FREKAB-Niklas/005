@@ -14,17 +14,15 @@ output_dir = 'output'
 def process_wiring():
     data = request.json  # Get data from frontend
 
-    # Convert data to a more detailed Wireviz format (YAML)
+    # Convert data to the simplified Wireviz format (YAML)
     connectors = {
         'X1': {
-            'type': 'Molex KK 254',
-            'subtype': 'female',
-            'pinlabels': ['GND', 'VCC', 'RX', 'TX']
+            'type': 'Test1',
+            'subtype': 'female'
         },
         'X2': {
-            'type': 'Molex KK 254',
-            'subtype': 'female',
-            'pinlabels': ['GND', 'VCC', 'RX', 'TX']
+            'type': 'Test2',
+            'subtype': 'female'
         }
     }
 
@@ -48,8 +46,7 @@ def process_wiring():
             'B1': {
                 'gauge': f"{data['gauge']} AWG",  # Convert gauge from input
                 'length': 0.2,  # Example length, modify as needed
-                'shield': False,  # Example shield, modify as needed
-                'type': 'Signal'  # Example type, modify as needed
+                'show_equiv': True,  # Example of auto-calculated AWG equivalent from metric gauge
             }
         },
         'connections': connections
