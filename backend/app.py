@@ -14,6 +14,10 @@ output_dir = 'output'
 def process_wiring():
     data = request.json  # Get data from frontend
 
+    # Extract pin labels and pin colors if provided
+    pinlabels = data.get('pinlabels', "").split(',') if 'pinlabels' in data and data['pinlabels'] else None
+    pincolors = data.get('pincolors', "").split(',') if 'pincolors' in data and data['pincolors'] else None
+
     # Convert data to the simplified Wireviz format (YAML)
     connectors = {
         'X1': {
@@ -25,6 +29,15 @@ def process_wiring():
             'subtype': 'female'
         }
     }
+
+    # Add pinlabels and pincolors only if they are provided
+    if pinlabels:
+        connectors['X1']['pinlabels'] = pinlabels
+        connectors['X2']['pinlabels'] = pinlabels
+
+    if pincolors:
+        connectors['X1']['pincolors'] = pincolors
+        connectors['X2']['pincolors'] = pincolors
 
     # Create connections based on the provided data
     connections = []
@@ -64,6 +77,7 @@ def process_wiring():
     with open(yaml_file_path, 'w') as file:
         yaml.dump(wireviz_data, file, sort_keys=False)
 
+    # Manually write the connections part with correct YAML formatting
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
         for connection in connections:
@@ -71,10 +85,8 @@ def process_wiring():
             for conn in connection:
                 # Extract key and value from the dictionary (e.g., {'X1': [1]})
                 for key, value in conn.items():
-                    # Wrap the connection in a list, ensuring it matches Wireviz format
+                    # Wrap each connection in an extra list to match Wireviz format
                     file.write(f'    - {key}: {value}\n')
-
-
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])

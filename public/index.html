@@ -26,6 +26,13 @@
         <label for="destination">Destination Connector (e.g., X2.1):</label>
         <input type="text" id="destination" name="destination" required><br>
 
+        <label for="pinlabels">Pin Labels (comma-separated):</label>
+        <input type="text" id="pinlabels" name="pinlabels" placeholder="GND,VCC,RX,TX">
+
+        <label for="pincolors">Pin Colors (comma-separated):</label>
+        <input type="text" id="pincolors" name="pincolors" placeholder="black,red,green,yellow">
+
+
         <button type="button" onclick="addConnection()">Add Another Connection</button><br><br>
 
         <!-- Area for dynamic connection inputs -->
