@@ -31,13 +31,13 @@ def process_wiring():
     for conn in data['connections']:
         source_conn = conn['source'].split(".")[0]
         dest_conn = conn['destination'].split(".")[0]
-        source_pin = conn['source'].split(".")[1]
-        dest_pin = conn['destination'].split(".")[1]
+        source_pin = int(conn['source'].split(".")[1])  # Convert pin numbers to integers
+        dest_pin = int(conn['destination'].split(".")[1])  # Convert pin numbers to integers
         
         connections.append([
-            {source_conn: [source_pin]},
-            {'B1': [source_pin]},  # Using 'B1' as an example cable ID
-            {dest_conn: [dest_pin]}
+            {source_conn: [source_pin]},  # Use list ([]) instead of string
+            {'B1': [source_pin]},  # Use list for cable pin connection
+            {dest_conn: [dest_pin]}  # Use list for destination pin
         ])
 
     wireviz_data = {
