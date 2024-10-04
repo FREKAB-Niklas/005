@@ -69,7 +69,11 @@ def process_wiring():
         for connection in connections:
             file.write('  -\n')
             for conn in connection:
-                file.write(f'    {conn}\n')
+                # Extract key and value from the dictionary (e.g., {'X1': [1]})
+                for key, value in conn.items():
+                    # Manually write key-value pairs in YAML format
+                    file.write(f'    {key}: {value}\n')
+
 
 
     # Run Wireviz to generate the diagram and output in the local directory
