@@ -10,16 +10,6 @@ CORS(app)  # Enable CORS for all routes
 # Set the output directory where Wireviz outputs will be saved
 output_dir = 'output'
 
-# Custom YAML representer to force flow style for specific lists
-class MyDumper(yaml.Dumper):
-    def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow=flow, indentless=indentless)
-
-    def represent_list(self, data):
-        return self.represent_sequence('tag:yaml.org,2002:seq', data, flow=True)
-
-yaml.add_representer(list, MyDumper.represent_list)
-
 @app.route('/process', methods=['POST'])
 def process_wiring():
     data = request.json  # Get data from frontend
@@ -69,17 +59,17 @@ def process_wiring():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Save YAML file in the output directory using the custom dumper
+    # Save YAML file in the output directory using default dump for connectors and cables
     yaml_file_path = os.path.join(output_dir, 'wireviz_data.yaml')
     
-    # First, dump connectors and cables in default block style
+    # First, dump connectors and cables in block style
     with open(yaml_file_path, 'w') as file:
         yaml.dump(wireviz_data, file, sort_keys=False)
 
-    # Now append connections separately, ensuring flow style is applied
+    # Now append connections separately, ensuring flow style is applied to connections
     with open(yaml_file_path, 'a') as file:
         file.write('connections:\n')
-        yaml.dump(connections, file, Dumper=MyDumper, default_flow_style=True)
+        yaml.dump(connections, file, default_flow_style=True, sort_keys=False)
 
     # Run Wireviz to generate the diagram and output in the local directory
     subprocess.run(["wireviz", yaml_file_path])
