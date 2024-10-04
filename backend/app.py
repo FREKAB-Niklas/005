@@ -18,30 +18,18 @@ def process_wiring():
     pinlabels = data.get('pinlabels', "").split(',') if data.get('pinlabels') else None
     pincolors = data.get('pincolors', "").split(',') if data.get('pincolors') else None
 
-    # Convert data to the simplified Wireviz format (YAML)
-    connectors = {
-        'X1': {
-            'type': 'Test1',
-            'subtype': 'female'
-        },
-        'X2': {
-            'type': 'Test2',
-            'subtype': 'female'
-        }
-    }
-
-    # Add pinlabels and pincolors only if they are provided
-    if pinlabels and pinlabels != [""]:  # Ensure pinlabels are not empty
-        connectors['X1']['pinlabels'] = pinlabels
-        connectors['X2']['pinlabels'] = pinlabels
-
-    if pincolors and pincolors != [""]:  # Ensure pincolors are not empty
-        connectors['X1']['pincolors'] = pincolors
-        connectors['X2']['pincolors'] = pincolors
-
     # Now include connectors (with pinlabels and pincolors) in wireviz_data
     wireviz_data = {
-        'connectors': connectors,  # Include the connectors dictionary
+        'connectors': {
+            'X1': {
+                'type': 'Test1',
+                'subtype': 'female'
+            },
+            'X2': {
+                'type': 'Test2',
+                'subtype': 'female'
+            }
+        },
         'cables': {
             'B1': {
                 'gauge': f"{data['gauge']} AWG",
@@ -50,6 +38,15 @@ def process_wiring():
             }
         }
     }
+
+    # Add pinlabels and pincolors only if they are provided
+    if pinlabels and pinlabels != [""]:  # Ensure pinlabels are not empty
+        wireviz_data['connectors']['X1']['pinlabels'] = pinlabels
+        wireviz_data['connectors']['X2']['pinlabels'] = pinlabels
+
+    if pincolors and pincolors != [""]:  # Ensure pincolors are not empty
+        wireviz_data['connectors']['X1']['pincolors'] = pincolors
+        wireviz_data['connectors']['X2']['pincolors'] = pincolors
 
     # Create connections based on the provided data
     connections = []
