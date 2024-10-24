@@ -1,0 +1,20 @@
+connectors:
+  X1:
+    type: 
+    pincount: 2
+  X2:
+    type: 
+    pincount: 2
+
+cables:
+  W1:
+    gauge: 1.5 mm2
+    length: 500
+    color: BK
+    wirecount: 1
+
+connections:
+  -
+    - X1: [1]
+    - W1: [1]
+    - X2: [1]
