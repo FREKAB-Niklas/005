@@ -1,7 +1,12 @@
-const express = require('express');
-const path = require('path');
-const { exec } = require('child_process');
-const fs = require('fs').promises;
+import express from 'express';
+import path from 'path';
+import { exec } from 'child_process';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = 3000;
